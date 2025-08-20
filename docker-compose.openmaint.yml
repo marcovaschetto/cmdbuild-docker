@@ -1,0 +1,33 @@
+services:
+  openmaint-db:
+    image: postgis/postgis:17-3.5
+    container_name: openmaint-db
+    environment:
+      POSTGRES_DB: ${OPENMAINT_ADMIN_DB}
+      POSTGRES_USER: ${OPENMAINT_ADMIN_USERNAME}
+      POSTGRES_PASSWORD: ${OPENMAINT_ADMIN_PASSWORD}
+      OPENMAINT_DB_NAME: ${OPENMAINT_DB_NAME}
+      OPENMAINT_DB_USER: ${OPENMAINT_DB_USER}
+      OPENMAINT_DB_PASSWORD: ${OPENMAINT_DB_PASSWORD}
+    volumes:
+      - openmaint_db_data:/var/lib/postgresql/data
+      - ./config/database/init-openmaint.sh:/docker-entrypoint-initdb.d/init-openmaint.sh
+
+  openmaint:
+    image: marcovaschetto/openmaint-app:latest
+    container_name: openmaint
+    depends_on:
+      - openmaint-db
+    environment:
+      OPENMAINT_DB_HOST: ${OPENMAINT_DB_HOST}
+      OPENMAINT_ADMIN_DB: ${OPENMAINT_ADMIN_DB}
+      OPENMAINT_ADMIN_USERNAME: ${OPENMAINT_ADMIN_USERNAME}
+      OPENMAINT_ADMIN_PASSWORD: ${OPENMAINT_ADMIN_PASSWORD}
+      OPENMAINT_DB_NAME: ${OPENMAINT_DB_NAME}
+      OPENMAINT_DB_USER: ${OPENMAINT_DB_USER}
+      OPENMAINT_DB_PASSWORD: ${OPENMAINT_DB_PASSWORD}
+    ports:
+      - "8081:8080"
+
+volumes:
+  openmaint_db_data:

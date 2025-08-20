@@ -1,0 +1,25 @@
+# Environment variables
+.env
+
+# Config files (sensitive)
+config/**/database.conf
+
+# Backup files (allow README.txt)
+volumes/backup/*
+!volumes/backup/README.txt
+
+# Dump / SQL / temporary files
+*.sql
+*.bak
+*.dump
+
+
+# IDE / system
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# compressed files
+*.sql.gz
+*.zip

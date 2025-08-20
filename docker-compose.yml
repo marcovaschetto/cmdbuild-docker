@@ -1,0 +1,111 @@
+services:
+  cmdbuild-db:
+    image: postgis/postgis:17-3.5
+    container_name: cmdbuild-db
+    environment:
+      POSTGRES_DB: ${CMDBUILD_ADMIN_DB}
+      POSTGRES_USER: ${CMDBUILD_ADMIN_USERNAME}
+      POSTGRES_PASSWORD: ${CMDBUILD_ADMIN_PASSWORD}
+      CMDBUILD_DB_NAME: ${CMDBUILD_DB_NAME}
+      CMDBUILD_DB_USER: ${CMDBUILD_DB_USER}
+      CMDBUILD_DB_PASSWORD: ${CMDBUILD_DB_PASSWORD}
+    volumes:
+      - cmdbuild_db_data:/var/lib/postgresql/data
+      - ./config/database/init-cmdbuild.sh:/docker-entrypoint-initdb.d/init-cmdbuild.sh
+    networks:
+      - isolated-net
+
+  cmdbuild:
+    image: marcovaschetto/cmdbuild-app:latest
+    container_name: cmdbuild
+    depends_on:
+      - cmdbuild-db
+    environment:
+      CMDBUILD_DB_HOST: ${CMDBUILD_DB_HOST}
+      CMDBUILD_ADMIN_DB: ${CMDBUILD_ADMIN_DB}
+      CMDBUILD_ADMIN_USERNAME: ${CMDBUILD_ADMIN_USERNAME}
+      CMDBUILD_ADMIN_PASSWORD: ${CMDBUILD_ADMIN_PASSWORD}
+      CMDBUILD_DB_NAME: ${CMDBUILD_DB_NAME}
+      CMDBUILD_DB_USER: ${CMDBUILD_DB_USER}
+      CMDBUILD_DB_PASSWORD: ${CMDBUILD_DB_PASSWORD}
+    ports:
+      - "8080:8080"
+    networks:
+      - isolated-net
+
+  openmaint-db:
+    image: postgis/postgis:17-3.5
+    container_name: openmaint-db
+    environment:
+      POSTGRES_DB: ${OPENMAINT_ADMIN_DB}
+      POSTGRES_USER: ${OPENMAINT_ADMIN_USERNAME}
+      POSTGRES_PASSWORD: ${OPENMAINT_ADMIN_PASSWORD}
+      OPENMAINT_DB_NAME: ${OPENMAINT_DB_NAME}
+      OPENMAINT_DB_USER: ${OPENMAINT_DB_USER}
+      OPENMAINT_DB_PASSWORD: ${OPENMAINT_DB_PASSWORD}
+    volumes:
+      - openmaint_db_data:/var/lib/postgresql/data
+      - ./config/database/init-openmaint.sh:/docker-entrypoint-initdb.d/init-openmaint.sh
+    networks:
+      - isolated-net
+
+  openmaint:
+    image: marcovaschetto/openmaint-app:latest
+    container_name: openmaint
+    depends_on:
+      - openmaint-db
+    environment:
+      OPENMAINT_DB_HOST: ${OPENMAINT_DB_HOST}
+      OPENMAINT_ADMIN_DB: ${OPENMAINT_ADMIN_DB}
+      OPENMAINT_ADMIN_USERNAME: ${OPENMAINT_ADMIN_USERNAME}
+      OPENMAINT_ADMIN_PASSWORD: ${OPENMAINT_ADMIN_PASSWORD}
+      OPENMAINT_DB_NAME: ${OPENMAINT_DB_NAME}
+      OPENMAINT_DB_USER: ${OPENMAINT_DB_USER}
+      OPENMAINT_DB_PASSWORD: ${OPENMAINT_DB_PASSWORD}
+    ports:
+      - "8081:8080"
+    networks:
+      - isolated-net
+
+  nginx:
+    image: nginx:1.29-alpine
+    container_name: nginx
+    volumes:
+      - ./config/nginx/default.conf:/etc/nginx/site-enabled/default.conf
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - cmdbuild
+      - openmaint
+    networks:
+      - default
+      - isolated-net
+
+  backup:
+    image: marcovaschetto/backup:latest
+    container_name: backup
+    volumes:
+      - ./volumes/backup:/backup
+    environment:
+      - CMDBUILD_DB_NAME=${CMDBUILD_DB_NAME}
+      - CMDBUILD_DB_USER=${CMDBUILD_DB_USER}
+      - CMDBUILD_DB_PASSWORD=${CMDBUILD_DB_PASSWORD}
+      - CMDBUILD_DB_HOST=cmdbuild-db
+      - OPENMAINT_DB_NAME=${OPENMAINT_DB_NAME}
+      - OPENMAINT_DB_USER=${OPENMAINT_DB_USER}
+      - OPENMAINT_DB_PASSWORD=${OPENMAINT_DB_PASSWORD}
+      - OPENMAINT_DB_HOST=openmaint-db
+    networks:
+      - isolated-net
+
+volumes:
+  cmdbuild_db_data:
+  openmaint_db_data:
+
+networks:
+  default:
+    driver: bridge
+  isolated-net:
+    driver: bridge
+    external: false

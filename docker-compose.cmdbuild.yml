@@ -1,0 +1,32 @@
+services:
+  cmdbuild-db:
+    image: postgis/postgis:17-3.5
+    container_name: cmdbuild-db
+    environment:
+      POSTGRES_DB: ${CMDBUILD_ADMIN_DB}
+      POSTGRES_USER: ${CMDBUILD_ADMIN_USERNAME}
+      POSTGRES_PASSWORD: ${CMDBUILD_ADMIN_PASSWORD}
+      CMDBUILD_DB_NAME: ${CMDBUILD_DB_NAME}
+      CMDBUILD_DB_USER: ${CMDBUILD_DB_USER}
+      CMDBUILD_DB_PASSWORD: ${CMDBUILD_DB_PASSWORD}
+    volumes:
+      - cmdbuild_db_data:/var/lib/postgresql/data
+      - ./config/database/init-cmdbuild.sh:/docker-entrypoint-initdb.d/init-cmdbuild.sh
+  cmdbuild:
+    image: marcovaschetto/cmdbuild-app:latest
+    container_name: cmdbuild
+    depends_on:
+      - cmdbuild-db
+    environment:
+      CMDBUILD_DB_HOST: ${CMDBUILD_DB_HOST}
+      CMDBUILD_ADMIN_DB: ${CMDBUILD_ADMIN_DB}
+      CMDBUILD_ADMIN_USERNAME: ${CMDBUILD_ADMIN_USERNAME}
+      CMDBUILD_ADMIN_PASSWORD: ${CMDBUILD_ADMIN_PASSWORD}
+      CMDBUILD_DB_NAME: ${CMDBUILD_DB_NAME}
+      CMDBUILD_DB_USER: ${CMDBUILD_DB_USER}
+      CMDBUILD_DB_PASSWORD: ${CMDBUILD_DB_PASSWORD}
+    ports:
+      - "8080:8080"
+
+volumes:
+  cmdbuild_db_data:
