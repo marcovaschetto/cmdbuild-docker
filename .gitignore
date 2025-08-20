@@ -1,5 +1,5 @@
 # Environment variables
-.env
+*.env
 
 # Config files (sensitive)
 config/**/database.conf
