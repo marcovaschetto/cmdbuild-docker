@@ -28,8 +28,6 @@ services:
       CMDBUILD_DB_NAME: ${CMDBUILD_DB_NAME}
       CMDBUILD_DB_USER: ${CMDBUILD_DB_USER}
       CMDBUILD_DB_PASSWORD: ${CMDBUILD_DB_PASSWORD}
-    ports:
-      - "8080:8080"
     networks:
       - isolated-net
 
@@ -62,8 +60,6 @@ services:
       OPENMAINT_DB_NAME: ${OPENMAINT_DB_NAME}
       OPENMAINT_DB_USER: ${OPENMAINT_DB_USER}
       OPENMAINT_DB_PASSWORD: ${OPENMAINT_DB_PASSWORD}
-    ports:
-      - "8081:8080"
     networks:
       - isolated-net
 
