@@ -71,7 +71,7 @@ services:
     image: nginx:1.29-alpine
     container_name: nginx
     volumes:
-      - ./config/nginx/default.conf:/etc/nginx/site-enabled/default.conf
+      - ./config/nginx/default.conf:/etc/nginx/conf.d/default.conf
     ports:
       - "80:80"
       - "443:443"
