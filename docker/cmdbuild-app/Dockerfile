@@ -9,7 +9,6 @@ RUN apk add --no-cache curl unzip && \
     mkdir cmdbuild && unzip cmdbuild.war -d cmdbuild
 
 # ---- Stage 2: production image ----
-#FROM tomcat:10-jdk17
 FROM tomcat:jdk21-openjdk-bookworm
 
 LABEL maintainer="marcovaschetto"
