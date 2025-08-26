@@ -1,5 +1,7 @@
 # Environment variables
 *.env
+# Nginx Certificates
+config/nginx/certs
 
 # Config files (sensitive)
 config/**/database.conf
